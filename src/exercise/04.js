@@ -1,11 +1,36 @@
 import * as React from 'react'
+import {useLocalStorageState} from '../utils'
+
+// count how many not null filled in
+function calculateCurrentStepCount(squares) {
+  return squares.reduce((stepCount, currentSquare) => {
+    if (currentSquare !== null) {
+      stepCount = stepCount + 1
+    }
+    return stepCount
+    // default 0
+  }, 0)
+}
+
+const MoveCount = ({moveNumber}) => {
+  const zeroIndexedMove = moveNumber - 1
+  return (
+    <li key={zeroIndexedMove}>
+      <button>Go to move #{moveNumber}</button>
+    </li>
+  )
+}
 
 function Board() {
-  const [squares, setSquares] = React.useState(Array(9).fill(null))
+  const [squares, setSquares] = useLocalStorageState(
+    'squares',
+    Array(9).fill(null),
+  )
 
   const nextValue = calculateNextValue(squares)
   const winner = calculateWinner(squares)
   const status = calculateStatus(winner, squares, nextValue)
+  const currentStepCount = calculateCurrentStepCount(squares)
 
   function selectSquare(square) {
     if (winner || squares[square]) {
@@ -17,9 +42,11 @@ function Board() {
     squaresCopy[square] = nextValue
 
     setSquares(squaresCopy)
+    window.localStorage.setItem('squares', JSON.stringify(squaresCopy))
   }
 
   function restart() {
+    window.localStorage.removeItem('squares')
     setSquares(Array(9).fill(null))
   }
 
@@ -33,25 +60,30 @@ function Board() {
 
   return (
     <div>
-      <div className="status">{status}</div>
-      <div className="board-row">
-        {renderSquare(0)}
-        {renderSquare(1)}
-        {renderSquare(2)}
+      <div>
+        <div className="status">{status}</div>
+        <div className="board-row">
+          {renderSquare(0)}
+          {renderSquare(1)}
+          {renderSquare(2)}
+        </div>
+        <div className="board-row">
+          {renderSquare(3)}
+          {renderSquare(4)}
+          {renderSquare(5)}
+        </div>
+        <div className="board-row">
+          {renderSquare(6)}
+          {renderSquare(7)}
+          {renderSquare(8)}
+        </div>
+        <button className="restart" onClick={restart}>
+          restart
+        </button>
       </div>
-      <div className="board-row">
-        {renderSquare(3)}
-        {renderSquare(4)}
-        {renderSquare(5)}
+      <div>
+        <ol>{<MoveCount moveNumber={currentStepCount} />}</ol>
       </div>
-      <div className="board-row">
-        {renderSquare(6)}
-        {renderSquare(7)}
-        {renderSquare(8)}
-      </div>
-      <button className="restart" onClick={restart}>
-        restart
-      </button>
     </div>
   )
 }
