@@ -11,35 +11,35 @@ import {PokemonForm, fetchPokemon, PokemonDataView, PokemonInfoFallback} from '.
 function PokemonInfo({pokemonName}) {
   const [pokemonInfo, setPokemonInfo] = React.useState(null)
   React.useEffect(() => {
-    // check pokemon is not an empty string
-    if (Boolean(pokemonName)) {
-      fetchPokemon(pokemonName).then(
-        pokemonData => {
-          setPokemonInfo(pokemonData)
-        }
-      )
+    if (Boolean(pokemonName) == false) {
+      // check for empty string to return out
+      return
     }
 
+    // reset back to initial state before submitting
+    // otherwise will persist last successful search
+    setPokemonInfo(null)
+    // implicitly set output to the setter
+    // ~ fetchPokemon(pokemonName).then(pokemon => setPokemon(pokemon))
+    fetchPokemon(pokemonName).then(setPokemonInfo)
   }, [pokemonName])
 
-  if (Boolean(pokemonName) === false) {
+  if (Boolean(pokemonName) == false) {
     return (
       <p>
         Submit a pokemon
       </p>
     )
-  }
-
-  if (pokemonInfo !== null) {
+  } else if (pokemonInfo !== null) {
     return (
       <PokemonDataView pokemon={pokemonInfo} />
     )
+  } else {
+    // on error or loading? 
+    return (
+      <PokemonInfoFallback name={pokemonName} />
+    )
   }
-
-  // on error or loading? 
-  return (
-    <PokemonInfoFallback name={pokemonName} />
-  )
 }
 
 function App() {
