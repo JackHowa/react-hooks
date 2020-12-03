@@ -15,19 +15,12 @@ function PokemonInfo({pokemonName}) {
     if (Boolean(pokemonName)) {
       fetchPokemon(pokemonName).then(
         pokemonData => {
-          console.log(pokemonData)
-          // setPokemonInfo(pokemonData)
+          setPokemonInfo(pokemonData)
         }
       )
     }
 
   }, [pokemonName])
-
-
-  // 🐨 return the following things based on the `pokemon` state and `pokemonName` prop:
-  //   1. no pokemonName: 'Submit a pokemon'
-  //   2. pokemonName but no pokemon: <PokemonInfoFallback name={pokemonName} />
-  //   3. pokemon: <PokemonDataView pokemon={pokemon} />
 
   if (Boolean(pokemonName) === false) {
     return (
@@ -37,10 +30,13 @@ function PokemonInfo({pokemonName}) {
     )
   }
 
+  if (pokemonInfo !== null) {
     return (
       <PokemonDataView pokemon={pokemonInfo} />
     )
+  }
 
+  // on error or loading? 
   return (
     <PokemonInfoFallback name={pokemonName} />
   )
