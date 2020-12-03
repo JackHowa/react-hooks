@@ -10,6 +10,7 @@ import {PokemonForm, fetchPokemon, PokemonDataView, PokemonInfoFallback} from '.
 
 function PokemonInfo({pokemonName}) {
   const [pokemonInfo, setPokemonInfo] = React.useState(null)
+  const [error, setError] = React.useState(null)
   React.useEffect(() => {
     if (Boolean(pokemonName) == false) {
       // check for empty string to return out
@@ -18,11 +19,20 @@ function PokemonInfo({pokemonName}) {
 
     // reset back to initial state before submitting
     // otherwise will persist last successful search
+    setError(null)
     setPokemonInfo(null)
     // implicitly set output to the setter
     // ~ fetchPokemon(pokemonName).then(pokemon => setPokemon(pokemon))
-    fetchPokemon(pokemonName).then(setPokemonInfo)
+    fetchPokemon(pokemonName).then(setPokemonInfo).catch(setError)
   }, [pokemonName])
+
+  if (error !== null) {
+    return (
+      <div role="alert">
+        There was an error: <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
+      </div>
+    )
+  }
 
   if (Boolean(pokemonName) == false) {
     return (
