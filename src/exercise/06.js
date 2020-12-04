@@ -9,13 +9,15 @@ import * as React from 'react'
 import {PokemonForm, fetchPokemon, PokemonDataView, PokemonInfoFallback} from '../pokemon'
 
 function PokemonInfo({pokemonName}) {
+  const [status, setStatus] = React.useState('idle')
   const [pokemonInfo, setPokemonInfo] = React.useState(null)
   const [error, setError] = React.useState(null)
   React.useEffect(() => {
-    if (Boolean(pokemonName) == false) {
+    if (Boolean(pokemonName) === false) {
       // check for empty string to return out
       return
     }
+    setStatus('pending')
 
     // reset back to initial state before submitting
     // otherwise will persist last successful search
@@ -23,10 +25,16 @@ function PokemonInfo({pokemonName}) {
     setPokemonInfo(null)
     // implicitly set output to the setter
     // ~ fetchPokemon(pokemonName).then(pokemon => setPokemon(pokemon))
-    fetchPokemon(pokemonName).then(setPokemonInfo).catch(setError)
+    fetchPokemon(pokemonName).then((data) => {
+      setPokemonInfo(data)
+      setStatus('resolved')
+    }).catch((error) => {
+      setError(error)
+      setStatus('rejected')
+    })
   }, [pokemonName])
 
-  if (error !== null) {
+  if (status === 'rejected') {
     return (
       <div role="alert">
         There was an error: <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
@@ -34,13 +42,13 @@ function PokemonInfo({pokemonName}) {
     )
   }
 
-  if (Boolean(pokemonName) == false) {
+  if (status === 'idle') {
     return (
       <p>
         Submit a pokemon
       </p>
     )
-  } else if (pokemonInfo !== null) {
+  } else if (status === 'resolved') {
     return (
       <PokemonDataView pokemon={pokemonInfo} />
     )
